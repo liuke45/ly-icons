@@ -1,0 +1,22 @@
+{
+  "name": "@ly/icons-monorepo",
+  "private": true,
+  "license": "ISC",
+  "version": "0.1.0",
+  "scripts": {
+    "dev": "npm run -C playground docs:dev",
+    "pull-svg": "pnpm --filter @ly/icons-svg build",
+    "build-comp": "pnpm --filter @ly/icons-vue* build",
+    "build": "npm run pull-svg && npm run build-comp && npm run release && npm run build:doc",
+    "lint": "eslint . --ext .vue,.js,.ts,.jsx,.tsx,.json --max-warnings 0",
+    "lint:fix": "eslint --fix . --ext .vue,.js,.ts,.jsx,.tsx,.json --max-warnings 0",
+    "release": "node build/update-version.js",
+    "build:doc": "pnpm --filter @ly/icons-playground docs:build"
+  },
+  "devDependencies": {
+    "eslint": "^8.40.0",
+    "eslint-define-config": "^1.20.0",
+    "prettier": "^2.8.8",
+    "typescript": "^4.9.5"
+  }
+}

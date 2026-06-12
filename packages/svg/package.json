@@ -1,0 +1,31 @@
+{
+  "private": "true",
+  "name": "@ly/icons-svg",
+  "version": "0.1.0",
+  "description": "龙鱼图标SVG格式文件库",
+  "keywords": [
+    "icon",
+    "svg"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+http://175.178.3.38/lyNpm/ly-icons.git",
+    "directory": "packages/svg"
+  },
+  "files": [
+    "./assets/*.svg"
+  ],
+  "scripts": {
+    "build": "pnpm run pull-svg",
+    "pull-svg": "node build/figma.js"
+  },
+  "devDependencies": {
+    "figma-js": "^1.16.0",
+    "fs-extra": "^10.1.0",
+    "got": "^11.3.0",
+    "lodash": "^4.17.21",
+    "p-queue": "5.0.0",
+    "sanitize-filename": "^1.6.3"
+  }
+}
