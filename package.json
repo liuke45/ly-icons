@@ -5,7 +5,8 @@
   "version": "0.1.0",
   "scripts": {
     "dev": "npm run -C playground docs:dev",
-    "pull-svg": "pnpm --filter @ly/icons-svg build",
+    "pull-svg": "node packages/svg/build/pull-svg.js",
+    "pull-svg:local": "node packages/svg/build/import-svg.js",
     "build-comp": "pnpm --filter @ly/icons-vue* build",
     "build": "npm run pull-svg && npm run build-comp && npm run release && npm run build:doc",
     "lint": "eslint . --ext .vue,.js,.ts,.jsx,.tsx,.json --max-warnings 0",

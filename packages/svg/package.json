@@ -18,7 +18,9 @@
   ],
   "scripts": {
     "build": "pnpm run pull-svg",
-    "pull-svg": "node build/figma.js"
+    "pull-svg": "node build/pull-svg.js",
+    "pull-svg:figma": "node build/figma.js",
+    "import-svg": "node build/import-svg.js"
   },
   "devDependencies": {
     "figma-js": "^1.16.0",

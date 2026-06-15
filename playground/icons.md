@@ -9,10 +9,23 @@
 :::
 
 <el-input v-model="keyword" placeholder="搜索图标名" />
-<el-switch v-model="ifAddPrefix" inactive-text="复制时原名称" active-text="复制时添加'LyIcon'前缀" />
+<el-tabs v-model="activeIconType" class="icon-tabs">
+  <el-tab-pane
+    v-for="item in iconTypes"
+    :key="item.value"
+    :label="item.label"
+    :name="item.value"
+  />
+</el-tabs>
+<el-switch
+  v-model="ifAddPrefix"
+  class="icon-prefix-switch"
+  inactive-text="复制时原名称"
+  active-text="复制时添加'LyIcon'前缀"
+/>
 
 <div class="icon-list">
-  <div v-for="(icon) in allIcons" class="icon-item" :title="icon.name" :key="icon.name" v-show="visibleIconKeys.has(icon.name)" @click="copyIconName(icon.name)">
+  <div v-for="icon in filteredIcons" class="icon-item" :title="icon.name" :key="icon.name" @click="copyIconName(icon.name)">
     <component :is="icon" :size="size" class="icon" />
     <span class="icon-name">{{ icon.name }}</span>
   </div>
@@ -20,7 +33,20 @@
 
 <style>
 .el-switch__label.is-active {
-  color: var(--vp-custom-block-tip-text)
+  color: #F18F18;
+}
+.icon-prefix-switch {
+  --el-switch-on-color: #F18F18;
+}
+.icon-tabs {
+  margin-top: 16px;
+}
+.icon-tabs .el-tabs__item.is-active,
+.icon-tabs .el-tabs__item:hover {
+  color: #F18F18;
+}
+.icon-tabs .el-tabs__active-bar {
+  background-color: #F18F18;
 }
 .icon-list {
   margin-top: 20px;
@@ -68,7 +94,7 @@ html.dark .icon-item:hover {
 import 'element-plus/theme-chalk/dark/css-vars.css'
 import 'element-plus/theme-chalk/index.css'
 import { icons as allIcons } from '@ly/icons-vue'
-import { ElInput, ElMessage, ElSwitch } from 'element-plus'
+import { ElInput, ElMessage, ElSwitch, ElTabPane, ElTabs } from 'element-plus'
 import { ref, computed  } from 'vue'
 
 const iconVersion = '1.5.1';
@@ -79,22 +105,72 @@ const size = ref(24)
 
 const ifAddPrefix = ref(true);
 
-const visibleIconKeys = computed (() => {
+type IconType = 'all' | 'line' | 'fill' | 'color';
+
+const activeIconType = ref<IconType>('all');
+
+const iconTypes: { label: string; value: IconType }[] = [
+  { label: '全部', value: 'all' },
+  { label: '线性图标', value: 'line' },
+  { label: '面性图标', value: 'fill' },
+  { label: '颜色图标', value: 'color' },
+];
+
+const filteredIcons = computed(() => {
   const _keyword = keyword.value.trim();
+  const reg = _keyword === '' ? null : new RegExp(_keyword, 'i');
 
-  if (_keyword === '') return new Set(Object.keys(allIcons));
-
-  const reg = new RegExp(_keyword, 'i');
-
-  return new Set(Object.keys(allIcons).filter(iconName => reg.test(iconName)));
+  return Object.values(allIcons).filter(icon => {
+    const iconName = icon.name || '';
+    return isMatchIconType(iconName, activeIconType.value) && (!reg || reg.test(iconName));
+  });
 });
 
-async function copyIconName(iconName) {
+/** 判断图标名称是否匹配当前图标分类。 */
+function isMatchIconType(iconName: string, iconType: IconType) {
+  if (iconType === 'all') return true;
+  if (iconType === 'fill') return iconName.endsWith('Fill');
+  if (iconType === 'color') return iconName.endsWith('Color');
+  return !iconName.endsWith('Fill') && !iconName.endsWith('Color');
+}
+
+/** 使用隐藏输入框兼容复制能力受限的浏览器环境。 */
+function fallbackCopyText(text: string) {
+  const textarea = document.createElement('textarea');
+  textarea.value = text;
+  textarea.setAttribute('readonly', 'readonly');
+  textarea.style.position = 'fixed';
+  textarea.style.top = '-9999px';
+  textarea.style.left = '-9999px';
+  document.body.appendChild(textarea);
+  textarea.select();
+
+  const isCopied = document.execCommand('copy');
+  document.body.removeChild(textarea);
+
+  if (!isCopied) {
+    throw new Error('当前浏览器不支持复制');
+  }
+}
+
+/** 复制图标组件名称。 */
+async function copyIconName(iconName: string) {
+  const iconFullName = `${ifAddPrefix.value ? 'LyIcon' : ''}${iconName}`;
+
   try {
-    await navigator.clipboard.writeText((ifAddPrefix.value ? "LyIcon" : '') + iconName);
+    if (navigator.clipboard && window.isSecureContext) {
+      await navigator.clipboard.writeText(iconFullName);
+    } else {
+      fallbackCopyText(iconFullName);
+    }
     ElMessage.success('复制成功！');
   } catch (err) {
-    ElMessage.warn(`复制失败，${err.message}`);
+    try {
+      fallbackCopyText(iconFullName);
+      ElMessage.success('复制成功！');
+    } catch (fallbackErr) {
+      ElMessage.warn(`复制失败，${(fallbackErr as Error).message}`);
+    }
   }
 }
 

@@ -17,7 +17,7 @@ export const getSvgFiles = async () => {
     )
   const pkg = pkgs.find((pkg) => pkg.manifest.name === '@ly/icons-svg')!
 
-  return glob('*.svg', { cwd: `${pkg.dir}\\assets`, absolute: true })
+  return glob('*.svg', { cwd: path.resolve(pkg.dir, 'assets'), absolute: true })
 }
 
 export const getName = (file: string) => {

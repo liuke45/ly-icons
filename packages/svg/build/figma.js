@@ -2,10 +2,14 @@ const got = require('got')
 const { ensureDir, writeFile, remove } = require('fs-extra')
 const { join, resolve } = require('path')
 const Figma = require('figma-js')
-const { FIGMA_TOKEN, FIGMA_FILE_URL } = require('./env.js')
+const figmaEnv = require('./env.js')
 const PQueue = require('p-queue')
 const sanitize = require('sanitize-filename')
 const { chunk } = require('lodash')
+
+const FIGMA_TOKEN = process.env.FIGMA_TOKEN || figmaEnv.FIGMA_TOKEN
+const FIGMA_FILE_URL = process.env.FIGMA_FILE_URL || figmaEnv.FIGMA_FILE_URL
+const FIGMA_NODE_ID = process.env.FIGMA_NODE_ID || figmaEnv.FIGMA_NODE_ID
 
 const options = {
   format: 'svg',
@@ -28,15 +32,27 @@ const client = Figma.Client({
   personalAccessToken: FIGMA_TOKEN,
 })
 
+// 从 Figma 文件链接中解析 file key，兼容 /file/ 和 /design/ 链接。
+function getFigmaFileId(fileUrl) {
+  return fileUrl.match(/(?:file|design)\/([a-z0-9]+)\//i)?.[1]
+}
+
+// 从环境变量或 Figma 链接中解析 node id，接口需要冒号格式。
+function getFigmaNodeId(fileUrl) {
+  const nodeId = FIGMA_NODE_ID || fileUrl.match(/[?&]node-id=([^&]+)/)?.[1]
+  return nodeId ? decodeURIComponent(nodeId).replace(/-/g, ':') : null
+}
+
 // Fail if there's no figma file key
-let fileId = null
-let nodeId = '489:12633'
+const fileId = getFigmaFileId(FIGMA_FILE_URL)
+const nodeId = getFigmaNodeId(FIGMA_FILE_URL)
+
 if (!fileId) {
-  try {
-    fileId = FIGMA_FILE_URL.match(/file\/([a-z0-9]+)\//i)[1]
-  } catch (e) {
-    throw Error('Cannot find FIGMA_FILE_URL key in process!')
-  }
+  throw Error('Cannot find FIGMA_FILE_URL key in process!')
+}
+
+if (!nodeId) {
+  throw Error('Cannot find FIGMA_NODE_ID or node-id in FIGMA_FILE_URL!')
 }
 
 console.log(`Exporting ${FIGMA_FILE_URL} components`)

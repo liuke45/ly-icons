@@ -1,9 +1,9 @@
-import type { App } from 'vue'
+import type { App, Component } from 'vue'
 import * as icons from './components'
 
-const LyVueIcons = {
+const LyVueIcons: Record<string, Component> = {
   ...icons,
-};
+}
 
 export interface InstallOptions {
   /** @default `LyIcon` */
