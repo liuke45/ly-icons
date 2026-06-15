@@ -23,6 +23,21 @@
 
 > 因为会从 Figma 拉取大量图片，如果网络环境不好，可能过程会非常缓慢，建议开启 VPN。
 
+如果图标资源来自设计师导出的 SVG zip，可以在构建时指定本地资源包：
+
+```bash
+LY_ICONS_ZIP=/Users/liuke/Downloads/download.zip pnpm build
+```
+
+也可以先单独导入 SVG，再执行组件构建：
+
+```bash
+LY_ICONS_ZIP=/Users/liuke/Downloads/download.zip pnpm pull-svg:local
+pnpm build-comp
+```
+
+本地目录资源可以使用 `LY_ICONS_SOURCE_DIR=/path/to/icons` 指定。
+
 ### 将变更内容提交
 
 提交格式为 `chore: release [版本号]`
