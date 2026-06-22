@@ -2,7 +2,7 @@
   "name": "@ly/icons-monorepo",
   "private": true,
   "license": "ISC",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "scripts": {
     "dev": "npm run -C playground docs:dev",
     "pull-svg": "node packages/svg/build/pull-svg.js",
