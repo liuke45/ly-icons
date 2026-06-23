@@ -33,7 +33,8 @@ const transformToVueComponent = async (file: Style) => {
     svgData
   )
   const vue = formatCode(component, 'vue')
-  writeFile(path.resolve(pathComponents, `${filename}.vue`), vue, 'utf-8')
+  // 等待组件文件写入完成，避免生成入口时读取到空目录。
+  await writeFile(path.resolve(pathComponents, `${filename}.vue`), vue, 'utf-8')
 }
 
 const generateEntry = async () => {

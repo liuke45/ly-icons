@@ -32,8 +32,8 @@ const transformToVueComponent = async (file: string) => {
     svgData
   )
   const vue = formatCode(component, 'vue')
-  writeFile(path.resolve(pathComponents, `${filename}.vue`), vue, 'utf-8').then(res => {
-  })
+  // 等待组件文件写入完成，避免生成入口时读取到空目录。
+  await writeFile(path.resolve(pathComponents, `${filename}.vue`), vue, 'utf-8')
 }
 
 const generateEntry = async () => {
@@ -54,7 +54,8 @@ const generateEntry = async () => {
 
   const iconsContent = getComponents({ imports, exports, components }) + `\n`;
   // components.ts文件
-  writeFile(
+  // 等待入口文件写入完成，保证后续构建读取到完整内容。
+  await writeFile(
     path.resolve(pathSrc, './components.ts'),
     iconsContent,
   );
