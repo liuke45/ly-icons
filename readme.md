@@ -16,7 +16,7 @@
 
 ### 构建
 
-执行命令`npm run build`
+执行命令`pnpm build`
 
 该命令会进行图标拉取、组件生成、NPM 发布、文档网站打包。
 完成此步骤，npm 包就已经发布完成了，后续是文档网站的处理
@@ -37,6 +37,12 @@ pnpm build-comp
 ```
 
 本地目录资源可以使用 `LY_ICONS_SOURCE_DIR=/path/to/icons` 指定。
+
+### 修改图标后本地预览
+
+```bash
+pnpm dev
+```
 
 ### 将变更内容提交
 
